@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import '../styles/pages.css';
 import { getAccessoryById } from '../data/accessories';
 
@@ -7,7 +7,14 @@ export default function AccessoryDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
-  const accessory = getAccessoryById(id);
+  const [accessory, setAccessory] = useState(() => getAccessoryById(id));
+
+  useEffect(() => {
+    const updateAccessory = () => setAccessory(getAccessoryById(id));
+    updateAccessory();
+    window.addEventListener('glowBeautyInventoryUpdated', updateAccessory);
+    return () => window.removeEventListener('glowBeautyInventoryUpdated', updateAccessory);
+  }, [id]);
 
   if (!accessory) {
     return (
@@ -19,15 +26,19 @@ export default function AccessoryDetail() {
     );
   }
 
+  const availableStock = accessory?.stock || 0;
+  const isOutOfStock = availableStock <= 0;
+
   const handleAddToCart = () => {
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
     cart.push({
       id,
+      category: 'accessory',
       name: accessory.name,
       price: accessory.price,
       image: accessory.image,
       description: accessory.description,
-      quantity
+      quantity: Math.min(quantity, availableStock)
     });
     localStorage.setItem('cart', JSON.stringify(cart));
     navigate('/checkout');
@@ -59,21 +70,26 @@ export default function AccessoryDetail() {
               <p>{accessory.ingredients}</p>
             </div>
 
+            <div className="product-detail-stock">
+              <strong>Stock:</strong> {availableStock} unidad{availableStock === 1 ? '' : 'es'}
+            </div>
+
             <div className="quantity-selector">
               <label>Cantidad:</label>
               <div className="quantity-controls">
-                <button onClick={() => setQuantity(Math.max(1, quantity - 1))}>−</button>
-                <span>{quantity}</span>
-                <button onClick={() => setQuantity(quantity + 1)}>+</button>
+                <button onClick={() => setQuantity((prev) => Math.max(1, prev - 1))} disabled={isOutOfStock}>−</button>
+                <span>{Math.min(quantity, availableStock || 1)}</span>
+                <button onClick={() => setQuantity((prev) => Math.min(prev + 1, availableStock || 1))} disabled={isOutOfStock}>+</button>
               </div>
             </div>
 
             <button
               className="btn btn-primary"
               onClick={handleAddToCart}
+              disabled={isOutOfStock}
               style={{ width: '100%', marginTop: '24px', padding: '16px' }}
             >
-              Agregar al Carrito
+              {isOutOfStock ? 'Producto Agotado' : 'Agregar al Carrito'}
             </button>
 
             <button

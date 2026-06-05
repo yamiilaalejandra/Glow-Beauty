@@ -1,20 +1,27 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import '../styles/pages.css';
-import { accessories } from '../data/accessories';
+import { getStoredAccessories } from '../data/accessories';
 
 export default function Accessories() {
   const navigate = useNavigate();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
+  const [accessories, setAccessories] = useState(() => getStoredAccessories());
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     setSearchTerm(searchParams.get('search') || '');
   }, [location.search]);
 
-  const filtered = accessories.filter(a =>
+  useEffect(() => {
+    const handleInventoryUpdated = () => setAccessories(getStoredAccessories());
+    window.addEventListener('glowBeautyInventoryUpdated', handleInventoryUpdated);
+    return () => window.removeEventListener('glowBeautyInventoryUpdated', handleInventoryUpdated);
+  }, []);
+
+  const filtered = accessories.filter((a) =>
     a.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -40,6 +47,9 @@ export default function Accessories() {
               <div className="product-info">
                 <h3 className="product-name">{item.name}</h3>
                 <p style={{ fontSize: '14px', marginBottom: '12px' }}>{item.description}</p>
+                <div className="product-detail-stock" style={{ marginBottom: '10px' }}>
+                  <strong>Stock:</strong> {item.stock || 0}
+                </div>
                 <div className="product-price">{new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(item.price)}</div>
                 <button
                   className="btn btn-primary"

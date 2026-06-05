@@ -13,7 +13,9 @@ import sombrabrilloImg from '../assets/sombrabrillo.jpg';
 import sombrabrillo3Img from '../assets/sombrabrillo3.jpg';
 import sombraIndividualImg from '../assets/sombraindividual.jpg';
 
-export const products = [
+const PRODUCT_STORAGE_KEY = 'glowBeautyProducts';
+
+const DEFAULT_PRODUCTS = [
   {
     id: 1,
     name: 'Delineador Preciso',
@@ -21,7 +23,8 @@ export const products = [
     longDescription: 'Nuestro delineador de punta fina ofrece un acabado ultra preciso, ideal para crear líneas finas y cat-eye perfectos. Resistente al agua y de larga duración.',
     ingredients: 'Cera de abejas, aceite de ricino, pigmentos negros',
     price: 1800,
-    image: delineadorImg
+    image: delineadorImg,
+    stock: 12
   },
   {
     id: 2,
@@ -30,7 +33,8 @@ export const products = [
     longDescription: 'Labial con fórmula cremosa y acabado mate que se adapta a tu tono de piel. Restaura hidratación y se mantiene sin transferencias por horas.',
     ingredients: 'Manteca de karité, vitamina E, pigmentos minerales',
     price: 2200,
-    image: labialImg
+    image: labialImg,
+    stock: 8
   },
   {
     id: 3,
@@ -39,7 +43,8 @@ export const products = [
     longDescription: 'Fórmula ligera y cómoda con un brillo sutil. Ideal para un look fresco y femenino con sensación hidratante.',
     ingredients: 'Aceite de jojoba, cera de coco, mica perlada',
     price: 2300,
-    image: labialRosaImg
+    image: labialRosaImg,
+    stock: 10
   },
   {
     id: 4,
@@ -48,7 +53,8 @@ export const products = [
     longDescription: 'Labial de alta pigmentación con textura suave y duradera. Su tono rojo intenso aporta sofisticación a cualquier look.',
     ingredients: 'Aceite de almendras, vitamina E, pigmentos rojo rubí',
     price: 2400,
-    image: labialRojoImg
+    image: labialRojoImg,
+    stock: 7
   },
   {
     id: 5,
@@ -57,7 +63,8 @@ export const products = [
     longDescription: 'Paleta de sombras con tonos mate y satinados. Perfecta para crear combinaciones delicadas y llamativas con una fórmula de alta pigmentación.',
     ingredients: 'Mica, talco, aceite de argán',
     price: 3200,
-    image: sombraImg
+    image: sombraImg,
+    stock: 9
   },
   {
     id: 6,
@@ -66,7 +73,8 @@ export const products = [
     longDescription: 'Sombras con colores pigmentados y una textura suave que permite difuminar fácilmente sin perder intensidad.',
     ingredients: 'Mica, óxido de hierro, talco',
     price: 2900,
-    image: sombraColorImg
+    image: sombraColorImg,
+    stock: 11
   },
   {
     id: 7,
@@ -75,7 +83,8 @@ export const products = [
     longDescription: 'Máscara con cepillo volumizador que separa y cubre cada pestaña para un efecto dramático y sin grumos.',
     ingredients: 'Cera de carnauba, polímeros, agua',
     price: 2600,
-    image: rimelImg
+    image: rimelImg,
+    stock: 5
   },
   {
     id: 8,
@@ -84,7 +93,8 @@ export const products = [
     longDescription: 'Base que hidrata mientras unifica el tono y deja un acabado radiante. Fórmula cómoda y de larga duración.',
     ingredients: 'Ácido hialurónico, glicerina, antioxidantes',
     price: 3000,
-    image: baseImg
+    image: baseImg,
+    stock: 13
   },
   {
     id: 9,
@@ -93,9 +103,9 @@ export const products = [
     longDescription: 'Polvo kit que controla el brillo, fija el maquillaje y deja una sensación ligera y sedosa.',
     ingredients: 'Sílice, talco, extracto de flor de loto',
     price: 1950,
-    image: polvobaseImg
-  }
-  ,
+    image: polvobaseImg,
+    stock: 6
+  },
   {
     id: 10,
     name: 'Set de Brochas',
@@ -103,7 +113,8 @@ export const products = [
     longDescription: 'Set de brochas variadas para base, rubor, difuminado y delineado. Cerdas suaves y mango ergonómico.',
     ingredients: 'Cerdas sintéticas, mango de madera',
     price: 3500,
-    image: brochasImg
+    image: brochasImg,
+    stock: 8
   },
   {
     id: 11,
@@ -112,7 +123,8 @@ export const products = [
     longDescription: 'Neceser con compartimentos y cierre reforzado, ideal para organizar y transportar tus productos favoritos.',
     ingredients: 'Nylon impermeable',
     price: 2200,
-    image: cosmeticsImg
+    image: cosmeticsImg,
+    stock: 14
   },
   {
     id: 12,
@@ -121,7 +133,8 @@ export const products = [
     longDescription: 'Sombra en polvo con acabado satinado y buena adherencia, perfecta para destacar el párpado con precisión.',
     ingredients: 'Mica, pigmentos',
     price: 650,
-    image: sombraIndividualImg
+    image: sombraIndividualImg,
+    stock: 20
   },
   {
     id: 13,
@@ -130,7 +143,8 @@ export const products = [
     longDescription: 'Pequeña paleta travel-friendly con tonos brillosos y fáciles de aplicar para iluminar la mirada.',
     ingredients: 'Mica, aceites acondicionadores',
     price: 1400,
-    image: sombrabrilloImg
+    image: sombrabrilloImg,
+    stock: 10
   },
   {
     id: 14,
@@ -139,10 +153,46 @@ export const products = [
     longDescription: 'Mini paleta con tres tonos brillantes pensados para combinar y crear puntos de luz en el maquillaje.',
     ingredients: 'Mica, pigmentos',
     price: 1500,
-    image: sombrabrillo3Img
+    image: sombrabrillo3Img,
+    stock: 16
   }
 ];
 
-export function getProductById(id) {
-  return products.find((product) => product.id === Number(id));
-}
+export const initializeProductStorage = () => {
+  if (!localStorage.getItem(PRODUCT_STORAGE_KEY)) {
+    localStorage.setItem(PRODUCT_STORAGE_KEY, JSON.stringify(DEFAULT_PRODUCTS));
+    window.dispatchEvent(new Event('glowBeautyProductsUpdated'));
+    window.dispatchEvent(new Event('glowBeautyInventoryUpdated'));
+  }
+  return getStoredProducts();
+};
+
+export const getStoredProducts = () => {
+  return JSON.parse(localStorage.getItem(PRODUCT_STORAGE_KEY)) || DEFAULT_PRODUCTS;
+};
+
+export const saveProducts = (productList) => {
+  localStorage.setItem(PRODUCT_STORAGE_KEY, JSON.stringify(productList));
+  window.dispatchEvent(new Event('glowBeautyProductsUpdated'));
+  window.dispatchEvent(new Event('glowBeautyInventoryUpdated'));
+};
+
+export const getProductById = (id) => {
+  return getStoredProducts().find((product) => product.id === Number(id));
+};
+
+export const findProductsByQuery = (query) => {
+  const q = String(query || '').trim().toLowerCase();
+  return getStoredProducts().filter((product) =>
+    product.name.toLowerCase().includes(q) ||
+    product.description.toLowerCase().includes(q) ||
+    product.longDescription.toLowerCase().includes(q)
+  );
+};
+
+export const getNextProductId = () => {
+  const products = getStoredProducts();
+  return products.reduce((maxId, product) => Math.max(maxId, Number(product.id)), 0) + 1;
+};
+
+export const products = DEFAULT_PRODUCTS;

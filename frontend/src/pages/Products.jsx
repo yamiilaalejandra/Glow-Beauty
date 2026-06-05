@@ -1,20 +1,27 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import '../styles/pages.css';
-import { products } from '../data/products';
+import { getStoredProducts } from '../data/products';
 
 export default function Products() {
   const navigate = useNavigate();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
+  const [products, setProducts] = useState(() => getStoredProducts());
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     setSearchTerm(searchParams.get('search') || '');
   }, [location.search]);
 
-  const filteredProducts = products.filter(p =>
+  useEffect(() => {
+    const handleProductsUpdate = () => setProducts(getStoredProducts());
+    window.addEventListener('glowBeautyProductsUpdated', handleProductsUpdate);
+    return () => window.removeEventListener('glowBeautyProductsUpdated', handleProductsUpdate);
+  }, []);
+
+  const filteredProducts = products.filter((p) =>
     p.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -38,6 +45,9 @@ export default function Products() {
               <div className="product-info">
                 <h3 className="product-name">{product.name}</h3>
                 <p style={{ fontSize: '14px', marginBottom: '12px' }}>{product.description}</p>
+                <div className="product-stock" style={{ marginBottom: 12, fontSize: 14, color: product.stock > 0 ? '#4a4a4a' : '#c9243f' }}>
+                  Stock: {product.stock} unidad{product.stock === 1 ? '' : 'es'}
+                </div>
                 <div className="product-price">{new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(product.price)}</div>
                 <button
                   className="btn btn-primary"

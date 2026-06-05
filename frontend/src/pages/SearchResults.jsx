@@ -1,23 +1,38 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import '../styles/pages.css';
-import { products } from '../data/products';
-import { accessories } from '../data/accessories';
+import { getStoredProducts } from '../data/products';
+import { getStoredAccessories } from '../data/accessories';
 
 export default function SearchResults() {
   const navigate = useNavigate();
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const [query, setQuery] = useState(params.get('q') || '');
+  const [products, setProducts] = useState(() => getStoredProducts());
+  const [accessories, setAccessories] = useState(() => getStoredAccessories());
 
   useEffect(() => {
     const p = new URLSearchParams(location.search);
     setQuery(p.get('q') || '');
   }, [location.search]);
 
+  useEffect(() => {
+    const handleProductsUpdate = () => setProducts(getStoredProducts());
+    const handleAccessoriesUpdate = () => setAccessories(getStoredAccessories());
+
+    window.addEventListener('glowBeautyProductsUpdated', handleProductsUpdate);
+    window.addEventListener('glowBeautyInventoryUpdated', handleAccessoriesUpdate);
+
+    return () => {
+      window.removeEventListener('glowBeautyProductsUpdated', handleProductsUpdate);
+      window.removeEventListener('glowBeautyInventoryUpdated', handleAccessoriesUpdate);
+    };
+  }, []);
+
   const q = query.trim().toLowerCase();
 
-  const filteredProducts = products.filter(p =>
+  const filteredProducts = products.filter((p) =>
     p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q)
   );
 

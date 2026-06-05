@@ -70,6 +70,7 @@ export default function Login() {
 
             <div className="login-footer">
               <p>¿No tienes cuenta? <Link to="/register">Crear cuenta</Link></p>
+              <p>¿Eres administrador? <Link to="/admin/login">Ingresar como admin</Link></p>
             </div>
           </div>
         </div>

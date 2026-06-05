@@ -12,8 +12,10 @@ export default function Header() {
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
+  const isAdminAuthenticated = sessionStorage.getItem('adminAuthenticated') === 'true';
 
-  const hideNav = location.pathname === '/login' || location.pathname === '/register';
+  const hideNav = location.pathname === '/login' || location.pathname === '/register' || location.pathname.startsWith('/admin');
+  const logoLink = isAdminAuthenticated ? '/admin' : isAuthenticated ? '/products' : '/login';
 
   useEffect(() => {
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -24,7 +26,12 @@ export default function Header() {
 
   const handleLogout = () => {
     localStorage.removeItem('user');
-    navigate('/login');
+    if (isAdminAuthenticated) {
+      sessionStorage.removeItem('adminAuthenticated');
+      navigate('/admin/login');
+    } else {
+      navigate('/login');
+    }
   };
 
   const handleSearch = (e) => {
@@ -37,7 +44,7 @@ export default function Header() {
     <header className="header">
       <div className="container">
         <div className="header-content">
-          <Link to="/" className="logo" aria-label="Glow Beauty">
+          <Link to={logoLink} className="logo" aria-label="Glow Beauty">
             <img src={logo} alt="Glow Beauty" className="logo-image" />
           </Link>
 
@@ -54,7 +61,7 @@ export default function Header() {
           )}
 
           <div className="header-icons">
-            {!isAuthenticated ? (
+            {!isAuthenticated && !isAdminAuthenticated ? (
               <button className="icon-button" title="Iniciar sesión" onClick={() => navigate('/login')}>
                 <img src={userIcon} alt="Iniciar sesión" className="icon-image" />
               </button>
@@ -64,14 +71,16 @@ export default function Header() {
               </button>
             )}
 
-            <button
-              className="icon-button"
-              title="Carrito"
-              onClick={() => navigate('/checkout')}
-            >
-              <img src={cartIcon} alt="Carrito" className="icon-image" />
-              {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
-            </button>
+            {!isAdminAuthenticated && !hideNav && (
+              <button
+                className="icon-button"
+                title="Carrito"
+                onClick={() => navigate('/checkout')}
+              >
+                <img src={cartIcon} alt="Carrito" className="icon-image" />
+                {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
+              </button>
+            )}
           </div>
         </div>
       </div>

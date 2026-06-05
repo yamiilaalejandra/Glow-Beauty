@@ -1,7 +1,86 @@
 /* General Page Styles */
-.page-content {
-  padding: 40px 0;
-  min-height: calc(100vh - 200px);
+
+.confirmation-page {
+  width: 100%;
+  min-height: calc(100vh - 140px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+.confirmation-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.confirmation-card {
+  width: 100%;
+  max-width: 700px;
+  padding: 40px;
+  text-align: center;
+}
+
+.confirmation-icon {
+  font-size: 80px;
+  margin-bottom: 20px;
+}
+
+.confirmation-card h1 {
+  margin-bottom: 16px;
+}
+
+.confirmation-message {
+  max-width: 550px;
+  margin: 0 auto 30px;
+  line-height: 1.8;
+}
+
+.confirmation-details {
+  margin: 30px 0;
+  background: rgba(236, 64, 122, 0.05);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-row strong {
+  color: var(--primary-pink);
+}
+
+.confirmation-card .btn {
+  width: 100%;
+  margin-top: 12px;
+}
+
+@media (max-width: 768px) {
+  .confirmation-card {
+    padding: 24px;
+  }
+
+  .detail-row {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+
+  .confirmation-icon {
+    font-size: 60px;
+  }
 }
 
 .section-subtitle {
@@ -369,93 +448,365 @@
   font-size: 15px;
   color: var(--text-light);
 }
+/* ==========================================================================
+   PANEL DE ADMINISTRACIÓN - ESTRUCTURA MULTICOLUMNA Y COMPONENTES
+   ========================================================================== */
 
-.summary-row.total {
-  border-bottom: none;
-  padding-top: 16px;
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--primary-pink);
-  border-top: 2px solid var(--border-color);
-}
-
-.free-shipping-msg {
-  background: rgba(236, 64, 122, 0.1);
-  color: var(--primary-pink);
-  padding: 12px;
-  border-radius: 8px;
-  text-align: center;
-  margin-top: 16px;
-  font-weight: 600;
-}
-
-/* Confirmation Page */
-.confirmation-container {
+/* Contenedor principal que distribuye Tabla e Input en dos columnas */
+.admin-main-content {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 70vh;
-}
-
-.confirmation-card {
+  gap: 24px;
+  align-items: flex-start;
+  flex-wrap: wrap; /* Permite bajar el formulario en pantallas chicas */
   width: 100%;
-  max-width: 520px;
-  padding: 48px;
-  text-align: center;
 }
 
-.confirmation-icon {
-  font-size: 80px;
-  margin-bottom: 24px;
-  animation: bounce 1s ease-in-out infinite;
+/* Columna Izquierda: Tabla de contenidos */
+.table-section {
+  flex: 1.6;        /* Ocupa mayor proporción de pantalla */
+  min-width: 500px; /* Evita compresión excesiva */
 }
 
-@keyframes bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-16px);
-  }
+/* Columna Derecha: Formulario dinámico */
+.form-section {
+  flex: 1;
+  min-width: 360px;
+  position: sticky; /* Se mantiene estático a la vista durante el scroll */
+  top: 24px;
 }
 
-.confirmation-card h1 {
-  margin-bottom: 16px;
+/* --------------------------------------------------------------------------
+   CORRECCIÓN Y MEJORAS DE LA TABLA (Anchos de columna fijos)
+   -------------------------------------------------------------------------- */
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+  table-layout: fixed; /* Fuerza a las columnas a respetar los anchos asignados */
 }
 
-.confirmation-message {
-  font-size: 16px;
-  color: var(--text-light);
-  margin-bottom: 32px;
-  line-height: 1.8;
-}
-
-.confirmation-details {
-  background: rgba(236, 64, 122, 0.05);
-  border: 1px solid var(--border-color);
-  margin: 32px 0;
-  padding: 24px;
+/* Distribución exacta de columnas para evitar que se encimen */
+.admin-table th:nth-child(1),
+.admin-table td:nth-child(1) {
+  width: 40%;        /* Nombre del producto */
   text-align: left;
 }
 
-.detail-row {
+.admin-table th:nth-child(2),
+.admin-table td:nth-child(2) {
+  width: 20%;        /* Precio */
+  text-align: right; /* Alinea importes a la derecha */
+  padding-right: 20px;
+}
+
+.admin-table th:nth-child(3),
+.admin-table td:nth-child(3) {
+  width: 15%;        /* Stock */
+  text-align: center;/* Centra el stock para separarlo limpiamente */
+}
+
+.admin-table th:nth-child(4),
+.admin-table td:nth-child(4) {
+  width: 25%;        /* Acciones (Editar/Eliminar) */
+  text-align: center;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 14px 12px;
+  border-bottom: 1px solid var(--border-color, #ffc1d6);
+}
+
+.admin-table th {
+  color: var(--text-dark, #333);
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* --------------------------------------------------------------------------
+   ESTILOS DEL FORMULARIO INTERNO
+   -------------------------------------------------------------------------- */
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 16px;
+}
+
+/* Bloque contenedor por campo */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+}
+
+/* Etiquetas del Formulario */
+.input-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark, #333);
+}
+
+/* Campos de entrada e inputs */
+.input-group input,
+.input-group textarea {
+  width: 100%;
+  padding: 12px 14px;
+  font-family: inherit;
+  font-size: 14px;
+  background-color: var(--bg-white, #fff);
+  border: 1px solid var(--border-color, #ffc1d6);
+  border-radius: 12px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Quitar flechas nativas molestas en inputs de tipo número */
+/* Quitar flechas nativas molestas en inputs de tipo número */
+.input-group input[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield; /* Firefox */
+}
+.input-group input[type="number"]::-webkit-outer-spin-button,
+.input-group input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;  /* Chrome, Safari, Edge */
+  margin: 0;
+}
+
+/* Textarea específico */
+.input-group textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* Efecto Focus en inputs */
+.input-group input:focus,
+.input-group textarea:focus {
+  outline: none;
+  border-color: #ec407a;
+  box-shadow: 0 0 0 3px rgba(236, 64, 122, 0.15);
+}
+
+/* Acciones al pie del formulario */
+.admin-form-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+/* Contenedor exclusivo de órdenes para asegurar el ancho total */
+.admin-orders-container {
+  width: 100%;
+  display: block;
+  clear: both;
+}
+
+.admin-orders-header {
   display: flex;
   justify-content: space-between;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--border-color);
+  align-items: center;
+  gap: 16px;
+  margin: 24px 0;
+  flex-wrap: wrap;
 }
 
-.detail-row:last-child {
-  border-bottom: none;
+.admin-orders-header h1 {
+  margin: 0 0 8px;
+  font-size: 32px;
 }
 
-.detail-row span {
-  color: var(--text-light);
+.admin-orders-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(320px, 1fr));
+  gap: 24px;
+  margin-top: 16px;
 }
 
-.detail-row strong {
-  color: var(--primary-pink);
+.order-card {
+  background: #ffffff;
+  border: 1px solid rgba(236, 64, 122, 0.15);
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.05);
+}
+
+.order-card-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.order-card-title h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.order-card-title p {
+  margin: 6px 0 0;
+  color: #666;
+}
+
+.order-status {
+  background: rgba(236, 64, 122, 0.1);
+  color: #d81b60;
+  border-radius: 999px;
+  padding: 8px 14px;
   font-weight: 700;
+  font-size: 13px;
+  align-self: center;
+}
+
+.order-section {
+  margin-bottom: 20px;
+}
+
+.order-section h3 {
+  margin: 0 0 14px;
+  font-size: 16px;
+}
+
+.order-detail-row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(236, 64, 122, 0.08);
+  font-size: 14px;
+}
+
+.order-detail-row span {
+  color: #888;
+}
+
+.order-detail-row strong {
+  color: #333;
+}
+
+.order-items-table-wrapper {
+  overflow-x: auto;
+}
+
+.order-items-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.order-items-table th,
+.order-items-table td {
+  padding: 12px 10px;
+  border: 1px solid rgba(236, 64, 122, 0.12);
+  text-align: left;
+}
+
+.order-items-table th {
+  background: rgba(236, 64, 122, 0.06);
+  color: #444;
+}
+
+.order-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0 0;
+  font-weight: 700;
+  font-size: 16px;
+  border-top: 1px solid rgba(236, 64, 122, 0.12);
+}
+
+.order-card-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.order-card-actions .btn {
+  min-width: 180px;
+}
+
+@media (max-width: 900px) {
+  .admin-orders-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   ESTILOS DE BOTONES (.btn)
+   ========================================================================== */
+
+.btn {
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+}
+
+.btn-primary {
+  background-color: #ec407a;
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background-color: #d81b60;
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: #ec407a;
+  border: 1px solid #ec407a;
+}
+
+.btn-secondary:hover {
+  background-color: rgba(236, 64, 122, 0.05);
+}
+
+.btn-danger {
+  background-color: transparent;
+  color: #e53935;
+  border: 1px solid #e53935;
+}
+
+.btn-danger:hover {
+  background-color: rgba(229, 57, 53, 0.05);
+}
+
+/* ==========================================================================
+   DISEÑO RESPONSIVO (Móviles y Tablets)
+   ========================================================================== */
+@media (max-width: 950px) {
+  .table-section, 
+  .form-section {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+  .form-section {
+    position: static; /* Desactiva el formulario fijo en pantallas chicas */
+  }
+  .admin-table {
+    table-layout: auto; /* Permite scroll o autoajuste flexible en móviles */
+  }
+}
+/* Media Query para pantallas pequeñas (móviles/tablets) */
+@media (max-width: 950px) {
+  .table-section, 
+  .form-section {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+  .form-section {
+    position: static; /* Desactiva el sticky en móviles */
+  }
 }
 
 /* Responsive Design */

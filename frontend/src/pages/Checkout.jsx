@@ -1,16 +1,22 @@
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import '../styles/pages.css';
+import { createOrder } from '../data/orders';
+import { getStoredProducts, saveProducts } from '../data/products';
+import { getStoredAccessories, saveAccessories } from '../data/accessories';
 
 export default function Checkout() {
   const navigate = useNavigate();
   const [cart, setCart] = useState(() => JSON.parse(localStorage.getItem('cart')) || []);
   const [formData, setFormData] = useState({
     name: '',
+    phone: '',
     email: '',
-    address: '',
-    city: '',
-    zipCode: '',
+    street: '',
+    number: '',
+    floorDepto: '',
+    cityProvince: '',
+    postalCode: '',
     paymentMethod: 'credit-card'
   });
 
@@ -32,6 +38,65 @@ export default function Checkout() {
 
   const handleConfirmPurchase = (e) => {
     e.preventDefault();
+
+    const currentProducts = getStoredProducts();
+    const currentAccessories = getStoredAccessories();
+
+    const insufficientStock = cart.filter((item) => {
+      const sourceList = item.category === 'accessory' ? currentAccessories : currentProducts;
+      const product = sourceList.find((product) => Number(product.id) === Number(item.id));
+      return !product || item.quantity > product.stock;
+    });
+
+    if (insufficientStock.length > 0) {
+      alert('Algunos productos no tienen stock suficiente. Actualiza tu carrito e intenta de nuevo.');
+      return;
+    }
+
+    const updatedProducts = currentProducts.map((product) => {
+      const cartItem = cart.find((item) => item.category !== 'accessory' && Number(item.id) === Number(product.id));
+      if (!cartItem) return product;
+      return {
+        ...product,
+        stock: Math.max(0, product.stock - cartItem.quantity)
+      };
+    });
+
+    const updatedAccessories = currentAccessories.map((accessory) => {
+      const cartItem = cart.find((item) => item.category === 'accessory' && Number(item.id) === Number(accessory.id));
+      if (!cartItem) return accessory;
+      return {
+        ...accessory,
+        stock: Math.max(0, accessory.stock - cartItem.quantity)
+      };
+    });
+
+    saveProducts(updatedProducts);
+    saveAccessories(updatedAccessories);
+
+    createOrder({
+      customerName: formData.name,
+      phone: formData.phone,
+      email: formData.email,
+      shipping: {
+        street: formData.street,
+        number: formData.number,
+        floorDepto: formData.floorDepto,
+        postalCode: formData.postalCode,
+        cityProvince: formData.cityProvince
+      },
+      paymentMethod: formData.paymentMethod,
+      items: cart.map((item) => ({
+        id: item.id,
+        category: item.category,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity
+      })),
+      total,
+      status: 'Pendiente'
+    });
+
     localStorage.removeItem('cart');
     navigate('/confirmation');
   };
@@ -131,13 +196,26 @@ export default function Checkout() {
               </div>
 
               <div className="input-group">
-                <label htmlFor="address">Dirección</label>
+                <label htmlFor="phone">Teléfono</label>
                 <input
-                  id="address"
+                  id="phone"
+                  type="tel"
+                  name="phone"
+                  placeholder="11 1234 5678"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+
+              <div className="input-group">
+                <label htmlFor="street">Calle</label>
+                <input
+                  id="street"
                   type="text"
-                  name="address"
-                  placeholder="Calle y número"
-                  value={formData.address}
+                  name="street"
+                  placeholder="Calle"
+                  value={formData.street}
                   onChange={handleInputChange}
                   required
                 />
@@ -145,26 +223,53 @@ export default function Checkout() {
 
               <div className="grid-2">
                 <div className="input-group">
-                  <label htmlFor="city">Ciudad</label>
+                  <label htmlFor="number">Número</label>
                   <input
-                    id="city"
+                    id="number"
                     type="text"
-                    name="city"
-                    placeholder="Ciudad"
-                    value={formData.city}
+                    name="number"
+                    placeholder="123"
+                    value={formData.number}
                     onChange={handleInputChange}
                     required
                   />
                 </div>
 
                 <div className="input-group">
-                  <label htmlFor="zipCode">Código Postal</label>
+                  <label htmlFor="floorDepto">Piso / Depto</label>
                   <input
-                    id="zipCode"
+                    id="floorDepto"
                     type="text"
-                    name="zipCode"
+                    name="floorDepto"
+                    placeholder="Piso y Depto"
+                    value={formData.floorDepto}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+
+              <div className="grid-2">
+                <div className="input-group">
+                  <label htmlFor="cityProvince">Ciudad / Provincia</label>
+                  <input
+                    id="cityProvince"
+                    type="text"
+                    name="cityProvince"
+                    placeholder="Ciudad / Provincia"
+                    value={formData.cityProvince}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+
+                <div className="input-group">
+                  <label htmlFor="postalCode">Código Postal</label>
+                  <input
+                    id="postalCode"
+                    type="text"
+                    name="postalCode"
                     placeholder="12345"
-                    value={formData.zipCode}
+                    value={formData.postalCode}
                     onChange={handleInputChange}
                     required
                   />
