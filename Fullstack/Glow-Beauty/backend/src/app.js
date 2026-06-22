@@ -8,7 +8,14 @@ const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'https://glow-beauty-5ybmayw68-alumno.vercel.app',
+    'https://glow-beauty-production.up.railway.app'
+  ],
+  credentials: true
+}));
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);
