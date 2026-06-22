@@ -12,9 +12,8 @@ const app = express();
 const rawOrigins = process.env.CORS_ORIGINS || '';
 const defaultOrigins = [
   'http://localhost:5173',
-  'https://glow-beauty-5ybmayw68-alumno.vercel.app',
-  'https://glow-beauty-production.up.railway.app',
-  'https://glow-beauty-p143ibo6t-yamiilaale.vercel.app'
+  'https://https://glow-beauty-mocha.vercel.app',
+  'https://glow-beauty-production.up.railway.app'
 ];
 
 const allowedOrigins = rawOrigins
