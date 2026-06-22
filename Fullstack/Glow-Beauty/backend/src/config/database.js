@@ -1,13 +1,18 @@
 const { Sequelize } = require('sequelize');
 
-// Si Railway nos da una URL de conexión completa (interna), la usamos directamente.
-// Si no existe (como en tu PC local), usamos los campos uno por uno.
 const sequelize = process.env.MYSQL_URL || process.env.DATABASE_URL
   ? new Sequelize(process.env.MYSQL_URL || process.env.DATABASE_URL, {
       dialect: 'mysql',
       logging: false,
+      // AGREGA ESTO PARA EVITAR QUE SE CORTE EN RAILWAY
+      pool: {
+        max: 5,
+        min: 0,
+        acquire: 60000,
+        idle: 10000
+      },
       dialectOptions: {
-        connectTimeout: 60000 // Evita que se corte la conexión por falta de tiempo
+        connectTimeout: 60000
       }
     })
   : new Sequelize(
