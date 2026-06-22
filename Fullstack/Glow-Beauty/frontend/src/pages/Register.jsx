@@ -34,14 +34,20 @@ export default function Register() {
     }
 
     try {
-      const data = await apiFetch('/auth/register', {
+      await apiFetch('/auth/register', {
         method: 'POST',
         body: JSON.stringify({ firstName, lastName, email, password }),
       });
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify({ email: data.email, firstName: data.firstName }));
+      
+      // Limpiamos los estados de error
       setError('');
-      navigate('/products');
+      
+      // Aviso amigable para el usuario
+      alert('¡Cuenta creada con éxito! Ahora inicia sesión con tus datos.');
+
+      // Redirigimos directamente al Login sin guardar sesión automática
+      navigate('/login');
+      
     } catch (err) {
       setError(err.message || 'Error al crear la cuenta.');
     }
