@@ -5,14 +5,49 @@ const sequelize = require('./src/config/database');
 
 const PORT = process.env.PORT || 3001;
 
-// Usamos force: false o alter: true. Para la primera vez en Railway, 
-// alter: true está perfecto para que fabrique las tablas si no existen.
-sequelize.sync({ alter: true }).then(() => {
-  console.log('Database synced successfully');
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
-}).catch((err) => {
-  console.error('Failed to sync database:', err);
-  process.exit(1);
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function startServer(maxRetries = 10) {
+  let attempt = 0;
+  let delay = 2000; // 2s
+
+  while (true) {
+    try {
+      attempt++;
+      console.log(`DB connection attempt ${attempt}`);
+      await sequelize.authenticate();
+      console.log('Database authenticated');
+
+      // Sync once connected
+      await sequelize.sync({ alter: true });
+      console.log('Database synced successfully');
+
+      app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+      });
+      break;
+    } catch (err) {
+      console.error(`DB connection attempt ${attempt} failed:`, err && err.message ? err.message : err);
+
+      if (attempt >= maxRetries) {
+        console.warn(`Reached ${maxRetries} attempts — switching to continuous retries every ${delay / 1000}s`);
+        attempt = 0; // reset attempt counter but keep retrying
+      }
+
+      console.log(`Retrying DB connection in ${delay / 1000}s...`);
+      await wait(delay);
+      delay = Math.min(delay * 2, 60000); // exponential backoff up to 60s
+    }
+  }
+}
+
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled Rejection:', reason);
 });
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+});
+
+startServer();
