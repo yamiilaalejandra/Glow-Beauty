@@ -24,16 +24,26 @@ const allowedOrigins = Array.from(new Set([...defaultOrigins, ...envOrigins]));
 
 const corsOptions = {
   origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      return callback(null, true);
+    
+    // Check if origin is in allowed list (case-insensitive)
+    const isAllowed = allowedOrigins.some(allowed => 
+      origin.toLowerCase() === allowed.toLowerCase()
+    );
+    
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      console.warn('CORS rejected origin:', origin, 'Allowed origins:', allowedOrigins);
+      callback(null, false);
     }
-    return callback(new Error('CORS not allowed by server'), false);
   },
   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
   optionsSuccessStatus: 200,
+  maxAge: 86400,
 };
 
 app.use(cors(corsOptions));
