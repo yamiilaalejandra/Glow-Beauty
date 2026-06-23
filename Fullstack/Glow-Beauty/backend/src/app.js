@@ -16,9 +16,11 @@ const defaultOrigins = [
 ];
 
 const rawOrigins = process.env.CORS_ORIGINS || '';
-const allowedOrigins = rawOrigins
-  ? rawOrigins.split(',').map((s) => s.trim()).filter(Boolean)
-  : defaultOrigins;
+const envOrigins = rawOrigins
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
+const allowedOrigins = Array.from(new Set([...defaultOrigins, ...envOrigins]));
 
 const corsOptions = {
   origin: function (origin, callback) {
