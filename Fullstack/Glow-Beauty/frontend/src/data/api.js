@@ -1,4 +1,4 @@
-const BASE_URL = 'https://glow-beauty-production.up.railway.app';
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://glow-beauty-production.up.railway.app';
 
 const getToken = () =>
   localStorage.getItem('adminToken') || localStorage.getItem('token');

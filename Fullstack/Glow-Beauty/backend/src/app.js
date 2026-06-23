@@ -39,8 +39,11 @@ app.use('/api/auth', authRoutes);
 app.use('/auth', authRoutes); // <--- Esto evita el error 404 que se veía en tu consola
 
 app.use('/api/products', productRoutes);
+app.use('/products', productRoutes); // soporte directo sin /api
 app.use('/api/accessories', accessoryRoutes);
+app.use('/accessories', accessoryRoutes); // soporte directo sin /api
 app.use('/api/orders', orderRoutes);
+app.use('/orders', orderRoutes); // soporte directo sin /api
 
 app.use(errorHandler);
 
