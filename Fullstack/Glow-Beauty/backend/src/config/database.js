@@ -11,8 +11,13 @@ const CONNECTION_URL =
   process.env.DATABASE_URL;
 
 function sslOptionsIfNeeded(url) {
-  // Forzar SSL si se indica con DB_SSL=true o la URL incluye ssl=true
-  if (process.env.DB_SSL === 'true' || (typeof url === 'string' && /ssl=true/i.test(url))) {
+  const shouldUseSsl =
+    process.env.DB_SSL === 'true' ||
+    process.env.MYSQL_SSL === 'true' ||
+    process.env.RAILWAY_ENVIRONMENT_NAME ||
+    (typeof url === 'string' && /ssl=true/i.test(url));
+
+  if (shouldUseSsl) {
     return { ssl: { rejectUnauthorized: false } };
   }
   return undefined;

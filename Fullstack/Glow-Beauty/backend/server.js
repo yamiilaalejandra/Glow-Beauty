@@ -3,7 +3,8 @@ const app = require('./src/app');
 // Importamos directamente la instancia desde database.js y sin llaves
 const sequelize = require('./src/config/database'); 
 
-const PORT = process.env.PORT || 3001;
+const PORT = Number(process.env.PORT) || 3001;
+const HOST = process.env.HOST || '0.0.0.0';
 
 function wait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -24,8 +25,8 @@ async function startServer(maxRetries = 10) {
       await sequelize.sync({ alter: true });
       console.log('Database synced successfully');
 
-      app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
+      app.listen(PORT, HOST, () => {
+        console.log(`Server running on http://${HOST}:${PORT}`);
       });
       break;
     } catch (err) {

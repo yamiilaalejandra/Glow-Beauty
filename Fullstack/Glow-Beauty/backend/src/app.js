@@ -11,6 +11,10 @@ const app = express();
 // 1. MIDDLEWARE DE PARSING (antes de CORS)
 app.use(express.json());
 
+app.get('/', (req, res) => {
+  res.json({ status: 'ok', service: 'glow-beauty-backend' });
+});
+
 // 2. Limpiamos las URLs por defecto
 const defaultOrigins = [
   'http://localhost:5173',
