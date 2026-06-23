@@ -8,14 +8,14 @@ const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 
-// Allow configurable CORS origins via env var `CORS_ORIGINS` (comma-separated)
-const rawOrigins = process.env.CORS_ORIGINS || '';
+// 1. Limpiamos las URLs por defecto (Corregido el doble https://)
 const defaultOrigins = [
   'http://localhost:5173',
-  'https://https://glow-beauty-mocha.vercel.app',
+  'https://glow-beauty-mocha.vercel.app',
   'https://glow-beauty-production.up.railway.app'
 ];
 
+const rawOrigins = process.env.CORS_ORIGINS || '';
 const allowedOrigins = rawOrigins
   ? rawOrigins.split(',').map((s) => s.trim()).filter(Boolean)
   : defaultOrigins;
@@ -23,7 +23,6 @@ const allowedOrigins = rawOrigins
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl)
       if (!origin) return callback(null, true);
       if (allowedOrigins.indexOf(origin) !== -1) {
         return callback(null, true);
@@ -35,7 +34,10 @@ app.use(
 );
 app.use(express.json());
 
+// 2. Soporte para ambas rutas (con y sin /api) por si tu frontend no usa /api
 app.use('/api/auth', authRoutes);
+app.use('/auth', authRoutes); // <--- Esto evita el error 404 que se veía en tu consola
+
 app.use('/api/products', productRoutes);
 app.use('/api/accessories', accessoryRoutes);
 app.use('/api/orders', orderRoutes);
