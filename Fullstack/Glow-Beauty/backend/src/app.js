@@ -8,7 +8,10 @@ const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 
-// 1. Limpiamos las URLs por defecto
+// 1. MIDDLEWARE DE PARSING (antes de CORS)
+app.use(express.json());
+
+// 2. Limpiamos las URLs por defecto
 const defaultOrigins = [
   'http://localhost:5173',
   'https://glow-beauty-mocha.vercel.app',
@@ -36,7 +39,6 @@ const corsOptions = {
       callback(null, true);
     } else {
       console.warn('CORS rejected origin:', origin, 'Allowed origins:', allowedOrigins);
-      // CORRECCIÓN: Se envía un objeto Error para que Express responda correctamente y Railway no tire 502
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -47,9 +49,8 @@ const corsOptions = {
   maxAge: 86400,
 };
 
+// 3. MIDDLEWARE DE CORS (después de parsing)
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
-app.use(express.json());
 
 // 2. Soporte para ambas rutas (con y sin /api)
 app.use('/api/auth', authRoutes);
