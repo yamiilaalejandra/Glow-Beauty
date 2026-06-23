@@ -3,7 +3,7 @@ const sequelize = require('./src/config/database');
 
 function mask(s) {
   if (!s) return undefined;
-  return s.replace(/(:\\/\\/.*:)(.*)@/, (m, p1) => p1 + '*****@');
+  return s.replace(/(:\/\/.*:)(.*)@/, (m, p1) => p1 + '*****@');
 }
 
 (async () => {
