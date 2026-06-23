@@ -3,7 +3,7 @@ const app = require('./src/app');
 // Importamos directamente la instancia desde database.js y sin llaves
 const sequelize = require('./src/config/database'); 
 
-const PORT = Number(process.env.PORT) || 3001;
+const PORT = Number(process.env.PORT) || 8080;
 const HOST = process.env.HOST || '0.0.0.0';
 
 function wait(ms) {

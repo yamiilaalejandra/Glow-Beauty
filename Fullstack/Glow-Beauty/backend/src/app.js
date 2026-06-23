@@ -18,6 +18,9 @@ app.get('/', (req, res) => {
 // 2. Limpiamos las URLs por defecto
 const defaultOrigins = [
   'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
   'https://glow-beauty-mocha.vercel.app',
   'https://glow-beauty-production.up.railway.app'
 ];
@@ -29,21 +32,32 @@ const envOrigins = rawOrigins
   .filter(Boolean);
 const allowedOrigins = Array.from(new Set([...defaultOrigins, ...envOrigins]));
 
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true;
+
+  const normalizedOrigin = origin.toLowerCase();
+  const isLocalhost = normalizedOrigin.startsWith('http://localhost:') || normalizedOrigin.startsWith('http://127.0.0.1:');
+  const isVercel = normalizedOrigin.endsWith('.vercel.app');
+  const isRailway = normalizedOrigin.includes('.railway.app');
+  const isGithubDev = normalizedOrigin.endsWith('.app.github.dev');
+
+  if (isLocalhost || isVercel || isRailway || isGithubDev) {
+    return true;
+  }
+
+  return allowedOrigins.some((allowed) => normalizedOrigin === allowed.toLowerCase());
+};
+
 const corsOptions = {
   origin: function (origin, callback) {
     // Permitir peticiones sin origen (como Postman o curl)
     if (!origin) return callback(null, true);
-    
-    // Check if origin is in allowed list (case-insensitive)
-    const isAllowed = allowedOrigins.some(allowed => 
-      origin.toLowerCase() === allowed.toLowerCase()
-    );
-    
-    if (isAllowed) {
+
+    if (isAllowedOrigin(origin)) {
       callback(null, true);
     } else {
       console.warn('CORS rejected origin:', origin, 'Allowed origins:', allowedOrigins);
-      callback(new Error('Not allowed by CORS'));
+      callback(null, false);
     }
   },
   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
@@ -55,6 +69,7 @@ const corsOptions = {
 
 // 3. MIDDLEWARE DE CORS (después de parsing)
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 // 2. Soporte para ambas rutas (con y sin /api)
 app.use('/api/auth', authRoutes);
