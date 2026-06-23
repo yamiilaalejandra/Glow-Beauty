@@ -8,7 +8,7 @@ const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 
-// 1. Limpiamos las URLs por defecto (Corregido el doble https://)
+// 1. Limpiamos las URLs por defecto
 const defaultOrigins = [
   'http://localhost:5173',
   'https://glow-beauty-mocha.vercel.app',
@@ -24,7 +24,7 @@ const allowedOrigins = Array.from(new Set([...defaultOrigins, ...envOrigins]));
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
+    // Permitir peticiones sin origen (como Postman o curl)
     if (!origin) return callback(null, true);
     
     // Check if origin is in allowed list (case-insensitive)
@@ -36,7 +36,8 @@ const corsOptions = {
       callback(null, true);
     } else {
       console.warn('CORS rejected origin:', origin, 'Allowed origins:', allowedOrigins);
-      callback(null, false);
+      // CORRECCIÓN: Se envía un objeto Error para que Express responda correctamente y Railway no tire 502
+      callback(new Error('Not allowed by CORS'));
     }
   },
   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
@@ -50,16 +51,16 @@ app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 app.use(express.json());
 
-// 2. Soporte para ambas rutas (con y sin /api) por si tu frontend no usa /api
+// 2. Soporte para ambas rutas (con y sin /api)
 app.use('/api/auth', authRoutes);
-app.use('/auth', authRoutes); // <--- Esto evita el error 404 que se veía en tu consola
+app.use('/auth', authRoutes); 
 
 app.use('/api/products', productRoutes);
-app.use('/products', productRoutes); // soporte directo sin /api
+app.use('/products', productRoutes); 
 app.use('/api/accessories', accessoryRoutes);
-app.use('/accessories', accessoryRoutes); // soporte directo sin /api
+app.use('/accessories', accessoryRoutes); 
 app.use('/api/orders', orderRoutes);
-app.use('/orders', orderRoutes); // soporte directo sin /api
+app.use('/orders', orderRoutes); 
 
 app.use(errorHandler);
 
